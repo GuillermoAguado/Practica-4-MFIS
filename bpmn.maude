@@ -23,19 +23,34 @@ mod BPMN is
     --- Mensajes
     sort Event .
     op msg : String -> Event [ctor] .
+    sort EventInstance . --- Potencialmente mal
     --- Flujo
+    sort Flow .
     op flow : Id Event Id -> Flow [ctor] .
     op flow : Id Time -> Flow [ctor] . --- Potencialmente mal
     --- Token
+    sort Token .
     op token : Id Time -> Token [ctor] .
     --- Proceso
-    class Process | nodes: Set{Node},
-    flows: Set{Flow},
-    tokens: List{Token},
-    gtime: Time,
-    resources: Set{Resource},
-    events: Set{EventInstance} . 
+    sort Process .
+    subsort Process < Cid .
+    op Process : -> Process .
+    op nodes:_ : Set{Node} -> Attribute [gather(&)] .        
+    op flows:_ : Set{Flows} -> Attribute [gather(&)] .
+    op tokens:_ : Token -> Attribute [gather(&)] .
+    op gtime:_ : Int -> Attribute [gather(&)] .
+    op resources:_ : Set{Resource} -> Attribute [gather(&)] .
+    op events:_ : Set{EventInstance} -> Attribute [gather(&)] .
 
+    --- class Process | nodes: Set{Node},
+    ---                flows: Set{Flow},
+    ---                tokens: List{Token},
+    ---                gtime: Time,
+    ---                resources: Set{Resource},
+    ---                events: Set{EventInstance} . 
+
+    
+    
 
 
 endm
