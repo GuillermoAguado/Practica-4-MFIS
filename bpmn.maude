@@ -1,7 +1,18 @@
-mod BPMN is
-    --- Identificadores
+--- Identificadores
+mod Id is
+    protecting STRING .
     sort Id .
     op id : String -> Id .
+endm
+
+view Id from TRIV to Id is
+    sort Elt to Id .
+endv
+
+mod BPMN is
+    --- Identificadores
+    protecting Id .
+    protecting SET{Id} .
     --- Puertas
     sort Gateway .
     op exclusive : -> Gateway [ctor] .
