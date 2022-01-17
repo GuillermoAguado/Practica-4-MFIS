@@ -55,7 +55,7 @@ view Token from TRIV to Token is
     sort Elt to Token .
 endv
 
-mod BPMN is
+mod BPMN-SEM is
     --- Tiempo
     protecting POSRAT-TIME-DOMAIN-WITH-INF .
     --- Identificadores
@@ -85,11 +85,12 @@ mod BPMN is
     protecting Token .
     protecting SET{Token} .
     --- Proceso
+    including CONFIGURATION .
     sort Process .
     subsort Process < Cid .
     op Process : -> Process .
     op nodes:_ : Set{Node} -> Attribute [gather(&)] .        
-    op flows:_ : Set{Flows} -> Attribute [gather(&)] .
+    op flows:_ : Set{Flow} -> Attribute [gather(&)] .
     op tokens:_ : Set{Token} -> Attribute [gather(&)] .
     op gtime:_ : Time -> Attribute [gather(&)] .
     op resources:_ : Set{Resource} -> Attribute [gather(&)] .
@@ -101,8 +102,16 @@ mod BPMN is
     ---                resources: Set{Resource},
     ---                events: Set{EventInstance} . 
 
+    --- Reglas
+    var o : Oid .
+    var VProcess : Process .
+    vars id1 id2 id3 : Id .
+    var setNode1 : Set{Node} .
+    var setToken1 : Set{Token} .
+    var time1 : Time .
+    var Atts : AttributeSet .
     
-    
-
+    rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id1, time1), setToken1), Atts > 
+        => < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id2, time1), setToken1), Atts >  .
 
 endm
