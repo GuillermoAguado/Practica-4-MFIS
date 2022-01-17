@@ -113,5 +113,6 @@ mod BPMN-SEM is
     
     rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id1, time1), setToken1), Atts > 
         => < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id2, time1), setToken1), Atts >  .
-
+    rl [flow] : < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id1, time1), setToken1), Atts > 
+        => < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id2, time1), setToken1), Atts >  .
 endm
