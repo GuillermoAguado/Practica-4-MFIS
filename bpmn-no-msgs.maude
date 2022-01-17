@@ -107,12 +107,14 @@ mod BPMN-SEM is
     var VProcess : Process .
     vars id1 id2 id3 : Id .
     var setNode1 : Set{Node} .
+    var setFlow1 : Set{Flow} .
     var setToken1 : Set{Token} .
-    var time1 : Time .
+    vars time1 time2 : Time .
     var Atts : AttributeSet .
     
-    rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id1, time1), setToken1), Atts > 
-        => < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id2, time1), setToken1), Atts >  .
-    rl [flow] : < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id1, time1), setToken1), Atts > 
-        => < o : VProcess | nodes: (start(id1, id2), setNode1), tokens: (token(id2, time1), setToken1), Atts >  .
+    rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
+        => < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id2, time1), setToken1), Atts >  .
+    rl [flowTask] : < o : VProcess | flows: (flow(id1, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
+        => < o : VProcess | flows: (flow(id1, time1), setFlow1), tokens: (token(id2, time2), setToken1), Atts >  .
+    --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm
