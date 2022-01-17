@@ -70,7 +70,7 @@ mod BPMN-SEM is
     protecting Node .
     protecting SET{Node} .
     --- Tarea
-    op task : Id String Id Id Time Set{Id} Set{Id} -> Node [ctor] .
+    op task : Id String Id Id Time Set{Id} -> Node [ctor] .
     --- Split
     op split : Id Gateway Id Set{Id} -> Node [ctor] .
     --- Merge
