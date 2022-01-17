@@ -11,7 +11,16 @@ view Id from TRIV to Id is
     sort Elt to Id .
 endv
 
+mod Token is 
+    protecting POSRAT-TIME-DOMAIN-WITH-INF .
+    protecting Id .
+    sort Token .
+    op token : Id Time -> Token [ctor] .
+endm
 
+view Token from TRIV to Token is
+    sort Elt to Token .
+endv
 
 mod BPMN is
     --- Tiempo
@@ -46,8 +55,8 @@ mod BPMN is
     op flow : Id Event Id -> Flow [ctor] .
     op flow : Id Time -> Flow [ctor] . --- Potencialmente mal
     --- Token
-    sort Token .
-    op token : Id Time -> Token [ctor] .
+    protecting Token .
+    protecting SET{Token} .
     --- Proceso
     sort Process .
     subsort Process < Cid .
