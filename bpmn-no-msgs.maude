@@ -9,6 +9,8 @@ view Id from TRIV to Id is
     sort Elt to Id .
 endv
 
+
+
 mod BPMN is
     --- Identificadores
     protecting Id .
