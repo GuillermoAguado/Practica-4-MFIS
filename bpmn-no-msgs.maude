@@ -1,3 +1,5 @@
+sload time.maude
+
 --- Identificadores
 mod Id is
     protecting STRING .
@@ -12,6 +14,8 @@ endv
 
 
 mod BPMN is
+    --- Tiempo
+    protecting POSRAT-TIME-DOMAIN-WITH-INF .
     --- Identificadores
     protecting Id .
     protecting SET{Id} .
@@ -53,7 +57,6 @@ mod BPMN is
     op tokens:_ : Token -> Attribute [gather(&)] .
     op gtime:_ : Int -> Attribute [gather(&)] .
     op resources:_ : Set{Resource} -> Attribute [gather(&)] .
-    op events:_ : Set{EventInstance} -> Attribute [gather(&)] .
 
     --- class Process | nodes: Set{Node},
     ---                flows: Set{Flow},
