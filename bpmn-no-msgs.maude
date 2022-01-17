@@ -11,6 +11,39 @@ view Id from TRIV to Id is
     sort Elt to Id .
 endv
 
+mod Node is 
+    protecting Id .
+    sort Node .
+    op start : Id Id -> Node [ctor] .
+    op end : Id Id -> Node [ctor] .
+endm
+
+view Node from TRIV to Node is
+    sort Elt to Node .
+endv
+
+mod Resource is 
+    protecting Id .
+    protecting NAT .
+    sort Resource .
+    op resource : Id Nat Nat -> Resource [ctor] .
+endm
+
+view Resource from TRIV to Resource is
+    sort Elt to Resource .
+endv
+
+mod Flow is 
+    protecting Id .
+    protecting POSRAT-TIME-DOMAIN-WITH-INF .
+    sort Flow .
+    op flow : Id Time -> Flow [ctor] .
+endm
+
+view Flow from TRIV to Flow is
+    sort Elt to Flow .
+endv
+
 mod Token is 
     protecting POSRAT-TIME-DOMAIN-WITH-INF .
     protecting Id .
@@ -34,9 +67,8 @@ mod BPMN is
     op parallel : -> Gateway [ctor] .
     op event-based : -> Gateway [ctor] .
     --- Nodos
-    sort Node .
-    op start : Id Id -> Node [ctor] .
-    op end : Id Id -> Node [ctor] .
+    protecting Node .
+    protecting SET{Node} .
     --- Tarea
     op task : Id String Id Id Time Set{Id} Set{Id} -> Node [ctor] .
     --- Split
@@ -44,16 +76,11 @@ mod BPMN is
     --- Merge
     op merge : Id Gateway Set{Id} Id -> Node [ctor] .
     --- Recursos
-    sort Resource .
-    op resource : Id Nat Nat -> Resource [ctor] .
-    --- Mensajes
-    sort Event .
-    op msg : String -> Event [ctor] .
-    sort EventInstance . --- Potencialmente mal
+    protecting Resource .
+    protecting SET{Resource} .
     --- Flujo
-    sort Flow .
-    op flow : Id Event Id -> Flow [ctor] .
-    op flow : Id Time -> Flow [ctor] . --- Potencialmente mal
+    protecting Flow .
+    protecting SET{Flow} .
     --- Token
     protecting Token .
     protecting SET{Token} .
@@ -63,8 +90,8 @@ mod BPMN is
     op Process : -> Process .
     op nodes:_ : Set{Node} -> Attribute [gather(&)] .        
     op flows:_ : Set{Flows} -> Attribute [gather(&)] .
-    op tokens:_ : Token -> Attribute [gather(&)] .
-    op gtime:_ : Int -> Attribute [gather(&)] .
+    op tokens:_ : Set{Token} -> Attribute [gather(&)] .
+    op gtime:_ : Time -> Attribute [gather(&)] .
     op resources:_ : Set{Resource} -> Attribute [gather(&)] .
 
     --- class Process | nodes: Set{Node},
