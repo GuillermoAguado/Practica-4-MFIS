@@ -147,6 +147,9 @@ mod BPMN-SEM is
     rl [mergeExclusive] : < o : VProcess | nodes: (merge(id1, exclusive, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >
         => < o : VProcess | nodes: (merge(id1, exclusive, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id2, time2), setToken1), Atts > .
     
+    rl [splitExclusive] : < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id1, 0), setToken1), Atts >
+        => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), setToken1), Atts > .
+    
     --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm
 
