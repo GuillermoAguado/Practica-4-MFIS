@@ -110,7 +110,7 @@ mod BPMN-SEM is
     var setFlow1 : Set{Flow} .
     var setId1 : Set{Id} .
     var setToken1 : Set{Token} .
-    vars time1 time2 time3 : Time .
+    vars time1 time2 time3 timeGlobal T' : Time .
     var Atts : AttributeSet .
     
     --- Operaciones
@@ -127,7 +127,12 @@ mod BPMN-SEM is
 
 
     --- Reglas
-
+    
+    --- tick rule should not advance time beyond expiration of a timer
+    crl [tick] : < o : VProcess | tokens: setToken1, gtime: timeGlobal, Atts > 
+                => < o : VProcess | tokens: delta(setToken1, T'), gtime: timeGlobal plus T', Atts >
+                if T' := mte(< o : VProcess | tokens: setToken1, gtime: timeGlobal, Atts >) /\ 0 < T' .
+    
     rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
         => < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id2, time1), setToken1), Atts >  .
      
