@@ -65,7 +65,6 @@ mod BPMN-SEM is
     sort Gateway .
     op exclusive : -> Gateway [ctor] .
     op parallel : -> Gateway [ctor] .
-    op event-based : -> Gateway [ctor] .
     --- Nodos
     protecting Node .
     protecting SET{Node} .
@@ -145,6 +144,9 @@ mod BPMN-SEM is
     rl [flowEnd] : < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
         => < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id2, 0), setToken1), Atts > .
 
+    rl [mergeExclusive] : < o : VProcess | nodes: (merge(id1, exclusive, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >
+        => < o : VProcess | nodes: (merge(id1, exclusive, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id2, time2), setToken1), Atts > .
+    
     --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm
 
