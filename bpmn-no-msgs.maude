@@ -102,7 +102,6 @@ mod BPMN-SEM is
     ---                resources: Set{Resource},
     ---                events: Set{EventInstance} . 
 
-    --- Reglas
     var o : Oid .
     var VProcess : Process .
     vars id1 id2 id3 : Id .
@@ -114,6 +113,12 @@ mod BPMN-SEM is
     vars time1 time2 time3 : Time .
     var Atts : AttributeSet .
     
+    op delta : Set{Token} Time -> Set{Token} .
+    eq delta(empty, time1) = empty .
+    eq delta((token(id1, time2), setToken1), time1) = ( token(id1, time2 monus time1),delta(setToken1,time1)) .
+
+    --- Reglas
+
     rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
         => < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id2, time1), setToken1), Atts >  .
      
