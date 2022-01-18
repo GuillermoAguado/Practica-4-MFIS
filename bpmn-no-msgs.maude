@@ -113,9 +113,18 @@ mod BPMN-SEM is
     vars time1 time2 time3 : Time .
     var Atts : AttributeSet .
     
+    --- Operaciones
+    
     op delta : Set{Token} Time -> Set{Token} .
     eq delta(empty, time1) = empty .
     eq delta((token(id1, time2), setToken1), time1) = ( token(id1, time2 monus time1),delta(setToken1,time1)) .
+
+    op mte : Configuration -> TimeInf .
+    eq mte(none) = INF .
+    eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: empty, Atts >) = INF .
+    eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: (token(id1, time1), setToken1), Atts >) 
+        = minimum(time1, mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: setToken1, Atts >)) . ---meter el if bloqueado
+
 
     --- Reglas
 
@@ -133,3 +142,16 @@ mod BPMN-SEM is
 
     --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm
+
+eof
+
+red mte(< o : Process | 
+        nodes: (start(id("00"), id("01")),
+                task(id("02"), "Sign in", id("01"), id("03"), 2, empty),
+                end(id("04"), id("03"))), 
+        flows: (flow(id("01"), 2),
+                flow(id("03"), 2)),
+        gtime: 0,
+        tokens: (token(id("00"), 4),token(id("10"), 3),token(id("20"), 2)),
+
+        resources: empty >) .
