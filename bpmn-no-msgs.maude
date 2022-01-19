@@ -103,14 +103,19 @@ mod BPMN-SEM is
 
     var o : Oid .
     var VProcess : Process .
-    vars id1 id2 id3 : Id .
+    vars id1 id2 id3 id4 : Id .
+    vars N M : Nat .
     var name :  String .
     var setNode1 : Set{Node} .
     var setFlow1 : Set{Flow} .
     var setId1 : Set{Id} .
     var setToken1 : Set{Token} .
+    var setResource1 : Set{Resource} .
+    var resource1 : Resource .
     vars time1 time2 time3 timeGlobal T' : Time .
     var Atts : AttributeSet .
+    var gateway : Gateway .
+    var conf : Configuration .
     
     --- Operaciones
     
@@ -121,10 +126,36 @@ mod BPMN-SEM is
     op mte : Configuration -> TimeInf .
     eq mte(none) = INF .
     eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: empty, Atts >) = INF .
-    eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: (token(id1, time1), setToken1), Atts >) 
-        = minimum(time1, mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: setToken1, Atts >)) . ---meter el if bloqueado
+    ceq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: (token(id1, time1), setToken1), Atts >) 
+        = minimum(time1, mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: setToken1, Atts >)) 
+        if checkBlock(token(id1, time1), < o : VProcess | nodes: setNode1, flows: setFlow1, tokens: (token(id1, time1), setToken1), Atts >) . ---meter el if bloqueado
+    
+    ---op comprobarBlock : Token Configuration -> Bool
+    op checkBlock : Token Configuration -> Bool .
+    eq checkBlock(token(id1, time1), conf) = checkResources(id1, conf) and true .
+        ---op comprobarRecursos : Token Configuration -> Bool
+            ---ver que idToken es idTask and alguno de los recursos de Task no es mayor que 0
+    op checkResources : Id Configuration -> Bool . ---false si no es tarea o si es tarea y hay recursos
+                                                    --- true si es tarea y no hay recursos
+    eq checkResources(id2, < o : VProcess | nodes: task(id2, name, id1, id3, time2, setId1), tokens: setToken1, resources: setResource1, Atts >) = 
+        isTask() and not(resourcesAvailable(task(id2, name, id1, id3, time2, setId1), setResource1)) .
 
+    op isTask : Id Set{Node} -> Bool . ---true si es tarea
+    eq isTask(id1, empty) = false .
+    eq isTask(id4, (task(id4, name, id1, id3, time2, setId1), setNode1)) = true .--- task con mismo id
+    eq isTask(id4, (task(id2, name, id1, id3, time2, setId1), setNode1)) = isTask(id4,setNode1) .--- task con distinto id
+    eq isTask(id4, (end(id1,id2), setNode1)) = isTask(id4,setNode1) .--- end
+    eq isTask(id4, (start(id1,id2), setNode1)) = isTask(id4,setNode1) . --- start
+    eq isTask(id4, (merge(id1, gateway, (id3, setId1), id2), setNode1)) = isTask(id4,setNode1) .  --- merge
+    eq isTask(id4, (split(id2, gateway, id1, (id3, setId1)), setNode1)) = isTask(id4,setNode1) .  --- split
 
+    op resourcesAvailable : Node Set{Resource} -> Bool . --- true si disponibles
+    eq resourcesAvailable(task(id2, name, id1, id3, time2, empty), setResource1) = true .
+    eq resourcesAvailable(task(id2, name, id1, id3, time2, (id4,setId1)), (resource(id4, N, M), setResource1)) = 
+        M > 0 and resourcesAvailable(task(id2, name, id1, id3, time2, (setId1)), setResource1) .
+        ---  and
+        ---op comprobarMergeParallel : Token Configuration -> Bool
+            ---ver que idToken está incluido en set{Id} del merge Parallel and comprobar el resto de ids y ver si alguno de ellos no es 0 
     --- Reglas
     
     --- tick rule should not advance time beyond expiration of a timer
