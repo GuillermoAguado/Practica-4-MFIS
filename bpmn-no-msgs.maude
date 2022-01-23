@@ -131,15 +131,28 @@ mod BPMN-SEM is
         = minimum(time1, mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: setToken1, Atts >)) . ---meter el if bloqueado
     
     op blockedTask : Token Configuration -> Bool . --- true si bloqueado, sino falso
-    eq blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, empty), setNode1), resources: setResource1,  Atts >) = false .
-    ceq blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, (id4, setId1)), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) = true 
+    eq blockedTask(token(id1, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, empty), setNode1), resources: setResource1,  Atts >) = false .
+    ceq blockedTask(token(id1, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, (id4, setId1)), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) = true 
         if M = 0 .
-    eq blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, (id4, setId1)), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) = 
-        blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) [owise] . 
+    eq blockedTask(token(id1, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, (id4, setId1)), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) = 
+        blockedTask(token(id1, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) [owise] . 
     
+    op subtractResource : Set{Id} Set{Resource} -> Set{Resource} .
+    eq subtractResource(empty, setResource1) = setResource1 . 
+    eq subtractResource((id1, setId1), (resource(id1, N, M),setResource1)) = (resource(id1, N, sd(M, 1)), subtractResource(setId1, setResource1)) .
+
+    op addResource : Set{Id} Set{Resource} -> Set{Resource} .
+    eq addResource(empty, setResource1) = setResource1 . 
+    eq addResource((id1, setId1), (resource(id1, N, M),setResource1)) = (resource(id1, N, s M), addResource(setId1, setResource1)) .
+
     op createTokens : Set{Id} Set{Flow} -> Set{Token} . 
     eq createTokens(empty, setFlow1) = empty .
     eq createTokens((id1, setId1), (flow(id1, time1),setFlow1)) = (token(id1, time1), createTokens(setId1, setFlow1)) . 
+    
+    op subtractTokens : Set{Id} Set{Token} -> Set{Token} .
+    eq subtractTokens(empty, setToken1) = setToken1 .
+    eq subtractTokens((id1, setId1), (token(id1, time1),setToken1)) = subtractTokens(setId1, setToken1) .
+    
     --- Reglas
     
     --- tick rule should not advance time beyond expiration of a timer
@@ -149,13 +162,13 @@ mod BPMN-SEM is
     
     rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
         => < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id2, time1), setToken1), Atts >  .
-     
-    rl [flowTask] : < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
-        => < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id2, time2), setToken1), Atts > .
+
+    crl [flowTask] : < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), tokens: (token(id1, 0), setToken1), resources: setResource1, Atts > 
+        => < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), tokens: (token(id2, time2), setToken1), resources: subtractResource(setId1,setResource1), Atts > 
+        if not(blockedTask(token(id1, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), tokens: (token(id2, 0), setToken1), resources: setResource1, Atts >)) .
     
-    crl [task] : < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id2, 0), setToken1), Atts > 
-        => < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), setToken1), Atts > 
-        if not(blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id2, 0), setToken1), Atts >)) .
+    rl [task] : < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id2, 0), setToken1), resources: setResource1, Atts > 
+        => < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), setToken1), resources: addResource(setId1, setResource1), Atts > .
 
     rl [flowEnd] : < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
         => < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id2, 0), setToken1), Atts > .
@@ -166,8 +179,11 @@ mod BPMN-SEM is
     rl [splitExclusive] : < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id1, 0), setToken1), Atts >
         => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), setToken1), Atts > .
 
+    rl [mergeParallel] : < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >
+        => < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id2, time2), subtractTokens(setId1, setToken1)), Atts > .
+    
     rl [splitParallel] : < o : VProcess | nodes: (split(id2, parallel, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id1, 0), setToken1), Atts >
-    => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), createTokens(setId1, setFlow1), setToken1), Atts > .
+        => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), createTokens(setId1, setFlow1), setToken1), Atts > .
     
     --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm
