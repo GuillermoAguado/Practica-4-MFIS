@@ -137,6 +137,9 @@ mod BPMN-SEM is
     eq blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, (id4, setId1)), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) = 
         blockedTask(token(id2, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), resources: (resource(id4, N, M),setResource1),  Atts >) [owise] . 
     
+    op createTokens : Set{Id} Set{Flow} -> Set{Token} . 
+    eq createTokens(empty, setFlow1) = empty .
+    eq createTokens((id1, setId1), (flow(id1, time1),setFlow1)) = (token(id1, time1), createTokens(setId1, setFlow1)) . 
     --- Reglas
     
     --- tick rule should not advance time beyond expiration of a timer
@@ -162,6 +165,9 @@ mod BPMN-SEM is
     
     rl [splitExclusive] : < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id1, 0), setToken1), Atts >
         => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), setToken1), Atts > .
+
+    rl [splitParallel] : < o : VProcess | nodes: (split(id2, parallel, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id1, 0), setToken1), Atts >
+    => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), createTokens(setId1, setFlow1), setToken1), Atts > .
     
     --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm
