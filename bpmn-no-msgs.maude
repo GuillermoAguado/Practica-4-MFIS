@@ -126,9 +126,16 @@ mod BPMN-SEM is
     op mte : Configuration -> TimeInf .
     eq mte(none) = INF .
     eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: empty, Atts >) = INF .
-    eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: empty, Atts >) = INF .
+    ceq mte(< o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1),setNode1), flows: (flow(id1, time2), setFlow1), tokens: (token(id1, time1), setToken1), Atts >) 
+        = minimum(INF, mte(< o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1),setNode1), flows: (flow(id1, time2), setFlow1), tokens: setToken1, Atts >)) 
+        if blockedTask(token(id1, time1),< o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1),setNode1), flows: (flow(id1, time2), setFlow1), tokens: (token(id1, time1), setToken1), Atts >) .
+
+    ceq mte(< o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2),setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, 0), setToken1), Atts >) 
+        = minimum(INF, mte(< o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2),setNode1), flows: (flow(id3, time3), setFlow1), tokens: setToken1, Atts >)) 
+        if blockedMerge(id1, < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2),setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, 0), setToken1), Atts >) .
+    
     eq mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: (token(id1, time1), setToken1), Atts >) 
-        = minimum(time1, mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: setToken1, Atts >)) . ---meter el if bloqueado
+        = minimum(time1, mte(< o : VProcess | nodes: setNode1, flows: setFlow1, tokens: setToken1, Atts >)) [owise] . ---meter el if bloqueado
     
     op blockedTask : Token Configuration -> Bool . --- true si bloqueado, si no falso
     eq blockedTask(token(id1, 0), < o : VProcess | nodes: (task(id2, name, id1, id3, time2, empty), setNode1), resources: setResource1,  Atts >) = false .

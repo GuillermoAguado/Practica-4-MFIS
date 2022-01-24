@@ -9,9 +9,9 @@ mod BPMN-EX is
     = < o : Process | 
         nodes: (start(id("n00"), id("f00")),
                 task(id("n01"), "Sign in", id("f00"), id("f01"), 2, empty),
-                merge(id("n02"), exclusive, (id("f01"), id("f04")), id("f02")),
+                merge(id("n02"), exclusive, (id("f01")), id("f02")),
                 task(id("n03"), "Search products", id("f02"), id("f03"), 2, empty),
-                split(id("n04"), exclusive, id("f03"), (id("f04"), id("f05"), id("f06"))),
+                split(id("n04"), exclusive, id("f03"), (id("f05"), id("f06"))),
                 end(id("n05"), id("f06")),
                 task(id("n06"), "Make an order", id("f05"), id("f07"), 2, empty),
                 task(id("n07"), "Fill in feedback form", id("f12"), id("f13"), 2, empty),
@@ -37,7 +37,6 @@ mod BPMN-EX is
                 flow(id("f01"), 2),
                 flow(id("f02"), 2),
                 flow(id("f03"), 2),
-                flow(id("f04"), 2),
                 flow(id("f05"), 2),
                 flow(id("f06"), 2),
                 flow(id("f07"), 2),
@@ -72,4 +71,4 @@ mod BPMN-EX is
                     resource(id("drone"), 1, 1)) > .
 endm
 
-search [,100] PROCESS =>! C:Configuration .
+search PROCESS =>! C:Configuration .
