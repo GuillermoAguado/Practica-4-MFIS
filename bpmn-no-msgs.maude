@@ -173,7 +173,7 @@ mod BPMN-SEM is
     --- tick rule should not advance time beyond expiration of a timer
     crl [tick] : < o : VProcess | tokens: setToken1, gtime: timeGlobal, Atts > 
                 => < o : VProcess | tokens: delta(setToken1, T'), gtime: timeGlobal plus T', Atts >
-                if T' := mte(< o : VProcess | tokens: setToken1, gtime: timeGlobal, Atts >) /\ 0 < T' .
+                if T' := mte(< o : VProcess | tokens: setToken1, gtime: timeGlobal, Atts >) /\ 0 < T' /\ timeGlobal < 100 .
     
     rl [start] : < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
         => < o : VProcess | nodes: (start(id1, id2), setNode1), flows: (flow(id2, time1), setFlow1), tokens: (token(id2, time1), setToken1), Atts >  .
@@ -186,7 +186,7 @@ mod BPMN-SEM is
         => < o : VProcess | nodes: (task(id2, name, id1, id3, time2, setId1), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), setToken1), resources: addResource(setId1, setResource1), Atts > .
 
     rl [flowEnd] : < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id1, 0), setToken1), Atts > 
-        => < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: (token(id2, 0), setToken1), Atts > .
+        => < o : VProcess | nodes: (end(id2, id1), setNode1), flows: (flow(id1, time1), setFlow1), tokens: setToken1, Atts > .
     
     rl [mergeExclusive] : < o : VProcess | nodes: (merge(id1, exclusive, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >
         => < o : VProcess | nodes: (merge(id1, exclusive, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id2, time2), setToken1), Atts > .
@@ -196,10 +196,10 @@ mod BPMN-SEM is
 
     crl [mergeParallel] : < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >
         => < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id2, time2), subtractTokens(setId1, setToken1)), Atts > 
-        if not(blockedMerge(id1, < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >)).
+        if not(blockedMerge(id1, < o : VProcess | nodes: (merge(id1, parallel, (id3, setId1), id2), setNode1), flows: (flow(id2, time2), setFlow1), tokens: (token(id3, 0), setToken1), Atts >)) .
 
     rl [splitParallel] : < o : VProcess | nodes: (split(id2, parallel, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id1, 0), setToken1), Atts >
-        => < o : VProcess | nodes: (split(id2, exclusive, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), createTokens(setId1, setFlow1), setToken1), Atts > .
+        => < o : VProcess | nodes: (split(id2, parallel, id1, (id3, setId1)), setNode1), flows: (flow(id3, time3), setFlow1), tokens: (token(id3, time3), createTokens(setId1, setFlow1), setToken1), Atts > .
     
     --- para pasar de un elemento a otro le pones al token el id del elemento al que va y el time del elemento al que va
 endm

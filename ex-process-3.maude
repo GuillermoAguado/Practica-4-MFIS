@@ -72,4 +72,4 @@ mod BPMN-EX is
                     resource(id("drone"), 1, 1)) > .
 endm
 
-search [,100] PROCESS =>! C:Configuration .
+search PROCESS =>! C:Configuration .
